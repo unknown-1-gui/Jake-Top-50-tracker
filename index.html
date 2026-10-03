@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Jake's Top Lists</title>
+<meta name="description" content="A personal top-50 ranking of games, albums and game soundtracks.">
+<style>
+:root{
+  --bg:#EDF6FC; --bg2:#E3F3F6;
+  --surface:rgba(255,255,255,.62); --surface-2:#DCEFF8;
+  --ink:#0B2239; --muted:#4D7290;
+  --accent:#17A7E0; --accent-2:#3FC481;
+  --gold:#E59A12; --line:rgba(11,34,57,.14);
+  --glow-op:.30;
+  --display:'Outfit',system-ui,sans-serif;
+  --body:'Inter',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#070D18; --bg2:#0C1930;
+    --surface:rgba(16,26,46,.58); --surface-2:#162336;
+    --ink:#EAF4FF; --muted:#80A0C2;
+    --accent:#36CFFF; --accent-2:#5FF0A8;
+    --gold:#FFC65C; --line:rgba(255,255,255,.12);
+    --glow-op:.5;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#070D18; --bg2:#0C1930;
+  --surface:rgba(16,26,46,.58); --surface-2:#162336;
+  --ink:#EAF4FF; --muted:#80A0C2;
+  --accent:#36CFFF; --accent-2:#5FF0A8;
+  --gold:#FFC65C; --line:rgba(255,255,255,.12);
+  --glow-op:.5;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:linear-gradient(175deg,var(--bg),var(--bg2));color:var(--ink);font-family:var(--body);padding-inline:16px}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.01em;margin:0}
+
+.bg-aurora{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
+.bg-aurora span{position:absolute;border-radius:50%;filter:blur(70px);opacity:var(--glow-op)}
+.bg-aurora .b1{width:52vmax;height:52vmax;top:-22vmax;left:-18vmax;background:radial-gradient(circle,var(--accent),transparent 70%)}
+.bg-aurora .b2{width:56vmax;height:56vmax;bottom:-26vmax;right:-20vmax;background:radial-gradient(circle,var(--accent-2),transparent 70%)}
+
+.wrap{max-width:1180px;margin:0 auto;position:relative;z-index:1}
+
+.glass{background:var(--surface);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);border:1px solid rgba(255,255,255,.22)}
+.sheen{position:relative;overflow:hidden}
+.sheen::before{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(120deg,rgba(255,255,255,.65) 0%,rgba(255,255,255,.18) 22%,rgba(255,255,255,0) 40%);mix-blend-mode:overlay}
+
+header.top{
+  position:sticky;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:20;
+  margin-top:calc(env(safe-area-inset-top,0px) + 12px);
+  border-radius:20px;padding:16px 18px 10px;
+  box-shadow:0 10px 30px -14px rgba(10,30,60,.35), inset 0 1px 0 rgba(255,255,255,.4);
+}
+.headrow{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-bottom:12px}
+.brand h1{font-size:clamp(22px,4.2vw,34px);font-weight:800;line-height:1.05;background:linear-gradient(100deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand p{margin:5px 0 0;color:var(--muted);font-size:13px}
+.counts{display:flex;gap:14px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.counts b{color:var(--ink);font-size:15px;font-variant-numeric:tabular-nums}
+
+.tabs{display:flex;gap:4px;padding:4px;border-radius:999px;width:fit-content;background:rgba(0,0,0,.05)}
+:root[data-theme="dark"] .tabs{background:rgba(0,0,0,.28)}
+@media (prefers-color-scheme:dark){ .tabs{background:rgba(0,0,0,.28)} }
+.tab{position:relative;overflow:hidden;font-family:var(--body);font-weight:600;font-size:13px;color:var(--muted);background:none;border:none;padding:9px 16px;cursor:pointer;border-radius:999px}
+.tab.active{color:#05111C;background:linear-gradient(180deg,var(--accent),var(--accent-2));box-shadow:0 4px 14px -4px rgba(23,167,224,.5), inset 0 1px 0 rgba(255,255,255,.55)}
+.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+section{padding-block:26px 8px}
+.sectitle{display:flex;align-items:baseline;gap:12px;margin-bottom:16px}
+.sectitle h2{font-size:clamp(18px,2.6vw,24px);font-weight:700}
+.sectitle span{color:var(--muted);font-family:var(--mono);font-size:11.5px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:18px}
+.grid.reserve{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:14px}
+.grid.square{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+
+.card{min-width:0;display:flex;flex-direction:column;gap:8px;position:relative}
+.cover-wrap{position:relative;border-radius:12px;overflow:hidden;background:var(--surface-2);border:1px solid var(--line);transition:transform .18s ease,box-shadow .18s ease}
+.cover-wrap.portrait{aspect-ratio:3/4.2}
+.cover-wrap.square{aspect-ratio:1/1}
+.card:hover .cover-wrap{transform:translateY(-3px);box-shadow:0 16px 28px -14px rgba(10,30,60,.4), 0 0 0 1px var(--accent) inset}
+.cover-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:10px;color:var(--muted)}
+.cover-empty svg{opacity:.55}
+.cover-empty span{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;line-height:1.4}
+
+.rank{position:absolute;top:8px;left:8px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);background:rgba(6,20,36,.55);color:#fff;font-family:var(--mono);font-weight:600;font-size:12px;padding:3px 8px;border-radius:999px;box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+.rating{position:absolute;bottom:8px;right:8px;background:var(--gold);color:#241705;font-family:var(--mono);font-weight:700;font-size:11px;padding:2px 7px;border-radius:999px;font-variant-numeric:tabular-nums;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+.reserve-tag{position:absolute;top:8px;left:8px;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-family:var(--mono);font-size:9px;letter-spacing:.08em;padding:3px 7px;border-radius:999px}
+.card.is-reserve .cover-wrap{filter:grayscale(.45) opacity(.82)}
+.card.is-reserve:hover .cover-wrap{filter:none}
+.card h3{font-size:14px;font-weight:700;line-height:1.25;margin:0}
+.card .sub{color:var(--muted);font-size:11.5px}
+
+.empty-state{border:1.5px dashed var(--line);border-radius:16px;padding:40px 20px;text-align:center;color:var(--muted)}
+.empty-state b{color:var(--ink);display:block;margin-bottom:6px;font-family:var(--display);font-size:19px;font-weight:700}
+
+footer{padding:40px 0 30px;color:var(--muted);font-family:var(--mono);font-size:11px;text-align:center}
+footer a{color:var(--accent)}
+
+@media (prefers-reduced-motion:reduce){ .cover-wrap,.tab{transition:none!important} }
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+</head>
+<body>
+
+<div class="bg-aurora" aria-hidden="true"><span class="b1"></span><span class="b2"></span></div>
+
+<div class="wrap">
+  <header class="top glass sheen">
+    <div class="headrow">
+      <div class="brand">
+        <h1 id="brandTitle">JAKE'S GAME SHELF</h1>
+        <p id="brandSub">a personal top 50, ranked and reserved</p>
+      </div>
+      <div class="counts"><span><b id="countRanked">—</b> ranked</span><span><b id="countReserve">—</b> reserve</span></div>
+    </div>
+    <nav class="tabs" id="tabs"></nav>
+  </header>
+
+  <section>
+    <div class="sectitle"><h2>Top list</h2><span id="rankedMeta"></span></div>
+    <div id="rankedGrid" class="grid"></div>
+  </section>
+
+  <section>
+    <div class="sectitle"><h2>Reserve</h2><span>honourable mentions, unranked</span></div>
+    <div id="reserveGrid" class="grid reserve"></div>
+  </section>
+
+  <footer>static snapshot · generated from the live list · <a href="https://claude.ai/artifact/UqiuZDVgEqdJP7SSyEtGS4">edit the live version</a></footer>
+</div>
+
+<script>
+(function(){
+  // ---- baked data (snapshot — re-export to refresh) ----
+  var DATA = {
+    games: {
+      title: "JAKE'S GAME SHELF", sub: "a personal top 50, ranked and reserved", cover: 'portrait', maxRank: 50,
+      items: [
+        {title:"Hollow Knight / Silksong",rank:1,sub:"Metroidvania"},
+        {title:"Hyper Light Drifter",rank:2,sub:"Action-Adventure / Pixel Art"},
+        {title:"Sphinx and the Cursed Mummy",rank:3,sub:"Action-Adventure Platformer"},
+        {title:"Ori and the Blind Forest",rank:4,sub:"Metroidvania"},
+        {title:"Star Wars: Knights of the Old Republic",rank:5,sub:"RPG / Star Wars"},
+        {title:"Outer Wilds",rank:6,sub:"Exploration / Mystery"},
+        {title:"Noita",rank:7,sub:"Roguelite / Physics Sim"},
+        {title:"The Elder Scrolls V: Skyrim",rank:8,sub:"Open-World RPG"},
+        {title:"Celeste",rank:9,sub:"Precision Platformer"},
+        {title:"GRIS",rank:10,sub:"Atmospheric Platformer"},
+        {title:"The Legend of Zelda: Breath of the Wild",rank:11,sub:"Open-World Action-Adventure"},
+        {title:"Hob",rank:12,sub:"Action-Adventure"},
+        {title:"CrossCode",rank:13,sub:"Action RPG"},
+        {title:"Haiku, the Robot",rank:14,sub:"Metroidvania"},
+        {title:"A Short Hike",rank:15,sub:"Cozy Exploration"},
+        {title:"Nine Sols",rank:16,sub:"Metroidvania / Souls-like"},
+        {title:"Journey",rank:17,sub:"Adventure"},
+        {title:"Fable",rank:18,sub:"Action RPG"},
+        {title:"Pseudoregalia",rank:19,sub:"3D Platformer / Metroidvania"},
+        {title:"Blasphemous",rank:20,sub:"Metroidvania / Souls-like"},
+        {title:"Ori and the Will of the Wisps",rank:21,sub:"Metroidvania"},
+        {title:"Blasphemous II",rank:22,sub:"Metroidvania / Souls-like"},
+        {title:"Chrono Trigger",rank:23,sub:"JRPG"},
+        {title:"Unsighted",rank:24,sub:"Action Metroidvania"},
+        {title:"Environmental Station Alpha",rank:25,sub:"Metroidvania"},
+        {title:"The Messenger",rank:26,sub:"Action Platformer / Metroidvania"},
+        {title:"Death's Door",rank:27,sub:"Action-Adventure"},
+        {title:"Little Nightmares",rank:28,sub:"Puzzle Platformer / Horror"},
+        {title:"Europa",rank:29,sub:"Exploration / Puzzle Platformer"},
+        {title:"Super Metroid",rank:30,sub:"Metroidvania"},
+        {title:"Brotato",rank:31,sub:"Roguelite / Survivor-like"},
+        {title:"Balatro",rank:32,sub:"Roguelite Deckbuilder"},
+        {title:"Firewatch",rank:33,sub:"Narrative Walking Sim"},
+        {title:"Omno",rank:34,sub:"Exploration Platformer"},
+        {title:"Exo One",rank:35,sub:"Physics Exploration"},
+        {title:"Doom (2016) / Doom Eternal",rank:36,sub:"Boomer Shooter / FPS"},
+        {title:"OneShot",rank:37,sub:"Puzzle / Narrative Adventure"},
+        {title:"The Getaway",rank:38,sub:"Action / Crime"},
+        {title:"Sifu",rank:39,sub:"Martial Arts Action"},
+        {title:"To the Moon",rank:40,sub:"Narrative Adventure"},
+        {title:"Limbo / Inside",rank:41,sub:"Puzzle Platformer"},
+        {title:"Yoku's Island Express",rank:42,sub:"Pinball Metroidvania"},
+        {title:"Animal Well",rank:43,sub:"Metroidvania"},
+        {title:"TUNIC",rank:44,sub:"Action-Adventure / Puzzle"},
+        {title:"Hylics",rank:45,sub:"Surreal RPG"},
+        {title:"Dusk",rank:46,sub:"Boomer Shooter / FPS"},
+        {title:"Fe",rank:47,sub:"Action-Adventure"},
+        {title:"Valheim",rank:48,sub:"Survival / Building"},
+        {title:"Minecraft",rank:49,sub:"Sandbox / Survival"},
+        {title:"Bioshock",rank:null,sub:"Immersive Sim / FPS"},
+        {title:"Earthbound",rank:null,sub:"JRPG"},
+        {title:"Inmost",rank:null,sub:"Puzzle Platformer / Narrative"},
+        {title:"BOKURA",rank:null,sub:"Narrative Puzzle"},
+        {title:"Voyage",rank:null,sub:"Co-op Puzzle Adventure"},
+        {title:"Max Payne 2",rank:null,sub:"Action / Noir"},
+        {title:"Vampire Survivors",rank:null,sub:"Roguelite / Survivor-like"},
+        {title:"Slay the Spire",rank:null,sub:"Roguelite Deckbuilder"},
+        {title:"Cobalt Core",rank:null,sub:"Roguelite Deckbuilder"},
+        {title:"Risk of Rain 2",rank:null,sub:"Roguelite / Survivor-like"},
+        {title:"Megabonk",rank:null,sub:"Roguelite / Survivor-like"},
+        {title:"Tom Clancy's Splinter Cell",rank:null,sub:"Stealth Action"},
+        {title:"Kena: Bridge of Spirits",rank:null,sub:"Action-Adventure"},
+        {title:"Arise: A Simple Story",rank:null,sub:"Puzzle Platformer"},
+        {title:"Undertale",rank:null,sub:"RPG / Narrative"},
+        {title:"Psychonauts",rank:null,sub:"Platformer"},
+        {title:"Hogwarts Legacy",rank:null,sub:"Open-World Action RPG"},
+        {title:"Cuphead",rank:null,sub:"Run and Gun"}
+      ]
+    },
+    albums: {
+      title: "JAKE'S ALBUMS", sub: "a personal top 50, ranked and reserved", cover: 'square', maxRank: 50,
+      items: [
+        {title:"Over Skies",rank:1,sub:"Quickly, Quickly"},
+        {title:"Multi-Love",rank:2,sub:"Unknown Mortal Orchestra"},
+        {title:"Dreamcore Vol. 1",rank:3,sub:"Dreamstation"},
+        {title:"Free 6LACK",rank:4,sub:"6LACK"},
+        {title:"Fin",rank:5,sub:"Syd"},
+        {title:"Rumours",rank:6,sub:"Fleetwood Mac"},
+        {title:"Rainforest Magic",rank:7,sub:"Tony O'Connor"},
+        {title:"I Like It When You Sleep...",rank:8,sub:"The 1975"},
+        {title:"Plural",rank:9,sub:"Electric Guest"},
+        {title:"Wolf",rank:10,sub:"Tyler, The Creator"},
+        {title:"Manj",rank:11,sub:"Joomanji"},
+        {title:"Introspection",rank:12,sub:"VALENTINE"},
+        {title:"Channel Orange",rank:13,sub:"Frank Ocean"},
+        {title:"Born to Do It",rank:14,sub:"Craig David"},
+        {title:"Nostalgia, Ultra",rank:15,sub:"Frank Ocean"},
+        {title:"For All We Know",rank:16,sub:"Nao"},
+        {title:"2070",rank:17,sub:"glue70"},
+        {title:"Blonde",rank:18,sub:"Frank Ocean"},
+        {title:"Art",rank:19,sub:"Benny Sings"},
+        {title:"Period",rank:20,sub:"Infinite Bisous"},
+        {title:"Can't Take Me Home",rank:21,sub:"P!nk"},
+        {title:"Flower Boy",rank:22,sub:"Tyler, The Creator"},
+        {title:"hypochondriac",rank:23,sub:"brakence"},
+        {title:"GOLDWATER EP",rank:24,sub:"Goldwater"},
+        {title:"Dynasty (EP)",rank:25,sub:"Koan Sound"},
+        {title:"Producer 05",rank:26,sub:"LTJ Bukem",rating:7}
+      ]
+    },
+    soundtracks: {
+      title: "JAKE'S GAME MUSIC", sub: "a personal top 50, ranked and reserved", cover: 'square', maxRank: 50,
+      items: [
+        {title:"Chrono Trigger",rank:1,sub:null},
+        {title:"Death's Door",rank:2,sub:null},
+        {title:"Hollow Knight",rank:3,sub:null},
+        {title:"Silksong",rank:4,sub:null},
+        {title:"Skyrim",rank:5,sub:null},
+        {title:"Ori and the Blind Forest",rank:6,sub:null},
+        {title:"Stardew Valley",rank:7,sub:null},
+        {title:"Minecraft",rank:8,sub:"C418"},
+        {title:"Risk of Rain 2",rank:9,sub:null},
+        {title:"Outer Wilds",rank:10,sub:null},
+        {title:"Celeste",rank:11,sub:null},
+        {title:"Hyper Light Drifter",rank:12,sub:null},
+        {title:"The Legend of Zelda: Breath of the Wild",rank:13,sub:null}
+      ]
+    }
+  };
+  var TAB_ORDER = ['games','albums','soundtracks'];
+  var TAB_LABELS = {games:'Games',albums:'Albums',soundtracks:'Soundtracks'};
+  var ICON_PHOTO = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"></rect><circle cx="8.5" cy="9.5" r="1.4"></circle><path d="M21 15l-5-5-4 4-3-3-6 6" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
+  var activeKey = 'games';
+
+  var els = {
+    tabs: document.getElementById('tabs'),
+    rankedGrid: document.getElementById('rankedGrid'),
+    reserveGrid: document.getElementById('reserveGrid'),
+    countRanked: document.getElementById('countRanked'),
+    countReserve: document.getElementById('countReserve'),
+    rankedMeta: document.getElementById('rankedMeta'),
+    brandTitle: document.getElementById('brandTitle'),
+    brandSub: document.getElementById('brandSub'),
+  };
+
+  function esc(s){ var d=document.createElement('div'); d.textContent = s==null?'':String(s); return d.innerHTML; }
+
+  function renderTabs(){
+    els.tabs.innerHTML = TAB_ORDER.map(function(k){
+      return '<button type="button" class="tab'+(k===activeKey?' active':'')+'" data-key="'+k+'">'+esc(TAB_LABELS[k])+'</button>';
+    }).join('');
+    els.tabs.querySelectorAll('.tab').forEach(function(btn){
+      btn.addEventListener('click', function(){ activeKey = btn.getAttribute('data-key'); renderTabs(); renderActive(); });
+    });
+  }
+
+  function cardHTML(g, rankView, coverClass){
+    var coverInner = '<div class="cover-empty">'+ICON_PHOTO+'<span>NO COVER ART YET</span></div>';
+    var topTag = rankView ? '<div class="rank">#'+esc(g.rank)+'</div>' : '<div class="reserve-tag">RESERVE</div>';
+    var ratingTag = (g.rating !== null && g.rating !== undefined) ? '<div class="rating">'+esc(g.rating)+'/10</div>' : '';
+    return (
+      '<div class="card'+(rankView?'':' is-reserve')+'">'+
+        '<div class="cover-wrap '+coverClass+'">'+coverInner+topTag+ratingTag+'</div>'+
+        '<h3>'+esc(g.title)+'</h3>'+
+        (g.sub ? '<div class="sub">'+esc(g.sub)+'</div>' : '')+
+      '</div>'
+    );
+  }
+
+  function renderActive(){
+    var conf = DATA[activeKey];
+    var coverClass = conf.cover === 'square' ? 'square' : 'portrait';
+    els.brandTitle.textContent = conf.title;
+    els.brandSub.textContent = conf.sub;
+
+    var ranked = conf.items.filter(function(g){ return g.rank != null; }).sort(function(a,b){ return a.rank-b.rank; });
+    var reserve = conf.items.filter(function(g){ return g.rank == null; });
+
+    els.countRanked.textContent = ranked.length;
+    els.countReserve.textContent = reserve.length;
+    els.rankedMeta.textContent = ranked.length + ' of ' + conf.maxRank + ' slots filled';
+
+    els.rankedGrid.className = 'grid' + (coverClass==='square' ? ' square' : '');
+    els.rankedGrid.innerHTML = ranked.length
+      ? ranked.map(function(g){ return cardHTML(g, true, coverClass); }).join('')
+      : '<div class="empty-state" style="grid-column:1/-1"><b>Nothing ranked yet</b></div>';
+
+    els.reserveGrid.className = 'grid reserve' + (coverClass==='square' ? ' square' : '');
+    els.reserveGrid.innerHTML = reserve.length
+      ? reserve.map(function(g){ return cardHTML(g, false, coverClass); }).join('')
+      : '<div class="empty-state" style="grid-column:1/-1">Nothing in reserve yet.</div>';
+  }
+
+  renderTabs();
+  renderActive();
+})();
+</script>
+</body>
+</html>
