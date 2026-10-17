@@ -105,6 +105,13 @@ section{padding-block:26px 8px}
 footer{padding:40px 0 30px;color:var(--muted);font-family:var(--mono);font-size:11px;text-align:center}
 footer a{color:var(--accent)}
 
+[hidden]{display:none!important}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.toolbar input[type=search],.toolbar select{background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:9px 14px;color:var(--ink);font-family:var(--body);font-size:14px}
+.toolbar input[type=search]{flex:1;min-width:180px}
+.toolbar label.chk{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.card .note{margin:0;color:var(--muted);font-size:12px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.rating.unrated{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.35);font-weight:500}
 @media (prefers-reduced-motion:reduce){ .cover-wrap,.tab{transition:none!important} }
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
@@ -120,17 +127,18 @@ footer a{color:var(--accent)}
         <h1 id="brandTitle">JAKE'S GAME SHELF</h1>
         <p id="brandSub">a personal top 50, ranked and reserved</p>
       </div>
-      <div class="counts"><span><b id="countRanked">—</b> ranked</span><span><b id="countReserve">—</b> reserve</span></div>
+      <div class="counts"><span><b id="countRanked">—</b> <span id="lblRanked">ranked</span></span><span><b id="countReserve">—</b> <span id="lblReserve">reserve</span></span></div>
     </div>
     <nav class="tabs" id="tabs"></nav>
   </header>
 
   <section>
-    <div class="sectitle"><h2>Top list</h2><span id="rankedMeta"></span></div>
+    <div class="sectitle"><h2 id="rankedTitle">Top list</h2><span id="rankedMeta"></span></div>
+    <div class="toolbar" id="toolbar" hidden><input type="search" id="f-search" placeholder="Search finished games" aria-label="Search finished games"><select id="f-sort" aria-label="Sort"><option value="rating">Highest rated</option><option value="az">A to Z</option></select><label class="chk"><input type="checkbox" id="f-unrated"> Unrated only</label></div>
     <div id="rankedGrid" class="grid"></div>
   </section>
 
-  <section>
+  <section id="reserveSection">
     <div class="sectitle"><h2>Reserve</h2><span>honourable mentions, unranked</span></div>
     <div id="reserveGrid" class="grid reserve"></div>
   </section>
@@ -141,131 +149,9 @@ footer a{color:var(--accent)}
 <script>
 (function(){
   // ---- baked data (snapshot — re-export to refresh) ----
-  var DATA = {
-    games: {
-      title: "JAKE'S GAME SHELF", sub: "a personal top 50, ranked and reserved", cover: 'portrait', maxRank: 50,
-      items: [
-        {title:"Hollow Knight / Silksong",rank:1,sub:"Metroidvania"},
-        {title:"Hyper Light Drifter",rank:2,sub:"Action-Adventure / Pixel Art"},
-        {title:"Sphinx and the Cursed Mummy",rank:3,sub:"Action-Adventure Platformer"},
-        {title:"Ori and the Blind Forest",rank:4,sub:"Metroidvania"},
-        {title:"Star Wars: Knights of the Old Republic",rank:5,sub:"RPG / Star Wars"},
-        {title:"Outer Wilds",rank:6,sub:"Exploration / Mystery"},
-        {title:"Noita",rank:7,sub:"Roguelite / Physics Sim"},
-        {title:"The Elder Scrolls V: Skyrim",rank:8,sub:"Open-World RPG"},
-        {title:"Celeste",rank:9,sub:"Precision Platformer"},
-        {title:"GRIS",rank:10,sub:"Atmospheric Platformer"},
-        {title:"The Legend of Zelda: Breath of the Wild",rank:11,sub:"Open-World Action-Adventure"},
-        {title:"Hob",rank:12,sub:"Action-Adventure"},
-        {title:"CrossCode",rank:13,sub:"Action RPG"},
-        {title:"Haiku, the Robot",rank:14,sub:"Metroidvania"},
-        {title:"A Short Hike",rank:15,sub:"Cozy Exploration"},
-        {title:"Nine Sols",rank:16,sub:"Metroidvania / Souls-like"},
-        {title:"Journey",rank:17,sub:"Adventure"},
-        {title:"Fable",rank:18,sub:"Action RPG"},
-        {title:"Pseudoregalia",rank:19,sub:"3D Platformer / Metroidvania"},
-        {title:"Blasphemous",rank:20,sub:"Metroidvania / Souls-like"},
-        {title:"Ori and the Will of the Wisps",rank:21,sub:"Metroidvania"},
-        {title:"Blasphemous II",rank:22,sub:"Metroidvania / Souls-like"},
-        {title:"Chrono Trigger",rank:23,sub:"JRPG"},
-        {title:"Unsighted",rank:24,sub:"Action Metroidvania"},
-        {title:"Environmental Station Alpha",rank:25,sub:"Metroidvania"},
-        {title:"The Messenger",rank:26,sub:"Action Platformer / Metroidvania"},
-        {title:"Death's Door",rank:27,sub:"Action-Adventure"},
-        {title:"Little Nightmares",rank:28,sub:"Puzzle Platformer / Horror"},
-        {title:"Europa",rank:29,sub:"Exploration / Puzzle Platformer"},
-        {title:"Super Metroid",rank:30,sub:"Metroidvania"},
-        {title:"Brotato",rank:31,sub:"Roguelite / Survivor-like"},
-        {title:"Balatro",rank:32,sub:"Roguelite Deckbuilder"},
-        {title:"Firewatch",rank:33,sub:"Narrative Walking Sim"},
-        {title:"Omno",rank:34,sub:"Exploration Platformer"},
-        {title:"Exo One",rank:35,sub:"Physics Exploration"},
-        {title:"Doom (2016) / Doom Eternal",rank:36,sub:"Boomer Shooter / FPS"},
-        {title:"OneShot",rank:37,sub:"Puzzle / Narrative Adventure"},
-        {title:"The Getaway",rank:38,sub:"Action / Crime"},
-        {title:"Sifu",rank:39,sub:"Martial Arts Action"},
-        {title:"To the Moon",rank:40,sub:"Narrative Adventure"},
-        {title:"Limbo / Inside",rank:41,sub:"Puzzle Platformer"},
-        {title:"Yoku's Island Express",rank:42,sub:"Pinball Metroidvania"},
-        {title:"Animal Well",rank:43,sub:"Metroidvania"},
-        {title:"TUNIC",rank:44,sub:"Action-Adventure / Puzzle"},
-        {title:"Hylics",rank:45,sub:"Surreal RPG"},
-        {title:"Dusk",rank:46,sub:"Boomer Shooter / FPS"},
-        {title:"Fe",rank:47,sub:"Action-Adventure"},
-        {title:"Valheim",rank:48,sub:"Survival / Building"},
-        {title:"Minecraft",rank:49,sub:"Sandbox / Survival"},
-        {title:"Bioshock",rank:null,sub:"Immersive Sim / FPS"},
-        {title:"Earthbound",rank:null,sub:"JRPG"},
-        {title:"Inmost",rank:null,sub:"Puzzle Platformer / Narrative"},
-        {title:"BOKURA",rank:null,sub:"Narrative Puzzle"},
-        {title:"Voyage",rank:null,sub:"Co-op Puzzle Adventure"},
-        {title:"Max Payne 2",rank:null,sub:"Action / Noir"},
-        {title:"Vampire Survivors",rank:null,sub:"Roguelite / Survivor-like"},
-        {title:"Slay the Spire",rank:null,sub:"Roguelite Deckbuilder"},
-        {title:"Cobalt Core",rank:null,sub:"Roguelite Deckbuilder"},
-        {title:"Risk of Rain 2",rank:null,sub:"Roguelite / Survivor-like"},
-        {title:"Megabonk",rank:null,sub:"Roguelite / Survivor-like"},
-        {title:"Tom Clancy's Splinter Cell",rank:null,sub:"Stealth Action"},
-        {title:"Kena: Bridge of Spirits",rank:null,sub:"Action-Adventure"},
-        {title:"Arise: A Simple Story",rank:null,sub:"Puzzle Platformer"},
-        {title:"Undertale",rank:null,sub:"RPG / Narrative"},
-        {title:"Psychonauts",rank:null,sub:"Platformer"},
-        {title:"Hogwarts Legacy",rank:null,sub:"Open-World Action RPG"},
-        {title:"Cuphead",rank:null,sub:"Run and Gun"}
-      ]
-    },
-    albums: {
-      title: "JAKE'S ALBUMS", sub: "a personal top 50, ranked and reserved", cover: 'square', maxRank: 50,
-      items: [
-        {title:"Over Skies",rank:1,sub:"Quickly, Quickly"},
-        {title:"Multi-Love",rank:2,sub:"Unknown Mortal Orchestra"},
-        {title:"Dreamcore Vol. 1",rank:3,sub:"Dreamstation"},
-        {title:"Free 6LACK",rank:4,sub:"6LACK"},
-        {title:"Fin",rank:5,sub:"Syd"},
-        {title:"Rumours",rank:6,sub:"Fleetwood Mac"},
-        {title:"Rainforest Magic",rank:7,sub:"Tony O'Connor"},
-        {title:"I Like It When You Sleep...",rank:8,sub:"The 1975"},
-        {title:"Plural",rank:9,sub:"Electric Guest"},
-        {title:"Wolf",rank:10,sub:"Tyler, The Creator"},
-        {title:"Manj",rank:11,sub:"Joomanji"},
-        {title:"Introspection",rank:12,sub:"VALENTINE"},
-        {title:"Channel Orange",rank:13,sub:"Frank Ocean"},
-        {title:"Born to Do It",rank:14,sub:"Craig David"},
-        {title:"Nostalgia, Ultra",rank:15,sub:"Frank Ocean"},
-        {title:"For All We Know",rank:16,sub:"Nao"},
-        {title:"2070",rank:17,sub:"glue70"},
-        {title:"Blonde",rank:18,sub:"Frank Ocean"},
-        {title:"Art",rank:19,sub:"Benny Sings"},
-        {title:"Period",rank:20,sub:"Infinite Bisous"},
-        {title:"Can't Take Me Home",rank:21,sub:"P!nk"},
-        {title:"Flower Boy",rank:22,sub:"Tyler, The Creator"},
-        {title:"hypochondriac",rank:23,sub:"brakence"},
-        {title:"GOLDWATER EP",rank:24,sub:"Goldwater"},
-        {title:"Dynasty (EP)",rank:25,sub:"Koan Sound"},
-        {title:"Producer 05",rank:26,sub:"LTJ Bukem",rating:7}
-      ]
-    },
-    soundtracks: {
-      title: "JAKE'S GAME MUSIC", sub: "a personal top 50, ranked and reserved", cover: 'square', maxRank: 50,
-      items: [
-        {title:"Chrono Trigger",rank:1,sub:null},
-        {title:"Death's Door",rank:2,sub:null},
-        {title:"Hollow Knight",rank:3,sub:null},
-        {title:"Silksong",rank:4,sub:null},
-        {title:"Skyrim",rank:5,sub:null},
-        {title:"Ori and the Blind Forest",rank:6,sub:null},
-        {title:"Stardew Valley",rank:7,sub:null},
-        {title:"Minecraft",rank:8,sub:"C418"},
-        {title:"Risk of Rain 2",rank:9,sub:null},
-        {title:"Outer Wilds",rank:10,sub:null},
-        {title:"Celeste",rank:11,sub:null},
-        {title:"Hyper Light Drifter",rank:12,sub:null},
-        {title:"The Legend of Zelda: Breath of the Wild",rank:13,sub:null}
-      ]
-    }
-  };
-  var TAB_ORDER = ['games','albums','soundtracks'];
-  var TAB_LABELS = {games:'Games',albums:'Albums',soundtracks:'Soundtracks'};
+  var DATA = {"games":{"title":"JAKE'S GAME SHELF","sub":"a personal top 50, ranked and reserved","cover":"portrait","maxRank":50,"items":[{"title":"Hollow Knight / Silksong","rank":1,"rating":null,"sub":"Metroidvania","notes":"Dark, meticulously animated bug-kingdom exploration; the sequel raises the difficulty and scope even further."},{"title":"Hyper Light Drifter","rank":2,"rating":null,"sub":"Action-Adventure / Pixel Art","notes":"Wordless, neon-drenched journey through a ruined world built on fast, weighty combat."},{"title":"Sphinx and the Cursed Mummy","rank":3,"rating":null,"sub":"Action-Adventure Platformer","notes":"Cult PS2-era platformer following twin heroes through Egyptian myth with inventive dual-character puzzles."},{"title":"Ori and the Blind Forest","rank":4,"rating":null,"sub":"Metroidvania","notes":"Hand-painted platformer about a lost spirit guardian saving a dying forest."},{"title":"Star Wars: Knights of the Old Republic","rank":5,"rating":null,"sub":"RPG / Star Wars","notes":"BioWare RPG set millennia before the films, famous for its branching morality and twist."},{"title":"Outer Wilds","rank":6,"rating":null,"sub":"Exploration / Mystery","notes":"Time-looping solar system mystery where knowledge is the real progression system."},{"title":"Noita","rank":7,"rating":null,"sub":"Roguelite / Physics Sim","notes":"Pixel-simulated world where every material reacts, making spellcasting wildly chaotic."},{"title":"The Elder Scrolls V: Skyrim","rank":8,"rating":null,"sub":"Open-World RPG","notes":"Sprawling fantasy sandbox that defined a console generation, endlessly moddable."},{"title":"Celeste","rank":9,"rating":null,"sub":"Precision Platformer","notes":"Brutally tight climb up a mountain built on some of the genre's best movement."},{"title":"GRIS","rank":10,"rating":null,"sub":"Atmospheric Platformer","notes":"Wordless watercolor platform-adventure about grief, told through shifting art and music."},{"title":"The Legend of Zelda: Breath of the Wild","rank":11,"rating":null,"sub":"Open-World Action-Adventure","notes":"Physics-driven reinvention of Zelda prioritizing experimentation over linear dungeons."},{"title":"Hob","rank":12,"rating":null,"sub":"Action-Adventure","notes":"Wordless exploration of a dying mechanical world, from the Torchlight team."},{"title":"CrossCode","rank":13,"rating":null,"sub":"Action RPG","notes":"Retro-styled action RPG blending Zelda-like combat with puzzle-heavy dungeons."},{"title":"Haiku, the Robot","rank":14,"rating":null,"sub":"Metroidvania","notes":"Post-apocalyptic sci-fi metroidvania about a wandering robot uncovering a dead world's story."},{"title":"A Short Hike","rank":15,"rating":null,"sub":"Cozy Exploration","notes":"Tiny, warm climb up a mountain, built for an afternoon rather than a hundred hours."},{"title":"Nine Sols","rank":16,"rating":null,"sub":"Metroidvania / Souls-like","notes":"Taoist-punk metroidvania with Sekiro-inspired parry combat and gorgeous 2D art."},{"title":"Journey","rank":17,"rating":null,"sub":"Adventure","notes":"Short, wordless pilgrimage across a desert, famous for its anonymous companion system."},{"title":"Fable","rank":18,"rating":null,"sub":"Action RPG","notes":"British fantasy RPG about growing from village hero to legend, full of humor."},{"title":"Pseudoregalia","rank":19,"rating":null,"sub":"3D Platformer / Metroidvania","notes":"Fast, movement-heavy 3D metroidvania inspired by N64-era platformers."},{"title":"Blasphemous","rank":20,"rating":null,"sub":"Metroidvania / Souls-like","notes":"Brutal, Catholic-imagery-soaked metroidvania with punishing combat and striking pixel art."},{"title":"Ori and the Will of the Wisps","rank":21,"rating":null,"sub":"Metroidvania","notes":"The sequel expands Ori's world and combat considerably, trading intimacy for scale."},{"title":"Blasphemous II","rank":22,"rating":null,"sub":"Metroidvania / Souls-like","notes":"A more polished, slightly more forgiving follow-up with an expanded weapon system."},{"title":"Chrono Trigger","rank":23,"rating":null,"sub":"JRPG","notes":"Time-traveling SNES classic often cited as one of the best JRPGs ever made."},{"title":"Unsighted","rank":24,"rating":null,"sub":"Action Metroidvania","notes":"Time-limited metroidvania where every character, you included, can permanently die."},{"title":"Environmental Station Alpha","rank":25,"rating":null,"sub":"Metroidvania","notes":"Tiny, brutally challenging pixel-art metroidvania built around clever traversal puzzles."},{"title":"The Messenger","rank":26,"rating":null,"sub":"Action Platformer / Metroidvania","notes":"8-bit-to-16-bit shifting platformer that opens into a full metroidvania, packed with humor."},{"title":"Death's Door","rank":27,"rating":null,"sub":"Action-Adventure","notes":"Sharp, Zelda-like isometric game starring a soul-collecting crow, praised for tight combat."},{"title":"Little Nightmares","rank":28,"rating":null,"sub":"Puzzle Platformer / Horror","notes":"Creepy, doll-like puzzle-platformer built on scale and dread rather than jump scares."},{"title":"Europa","rank":29,"rating":null,"sub":"Exploration / Puzzle Platformer","notes":"Serene sci-fi platformer about restoring a dying world, focused on quiet exploration."},{"title":"Super Metroid","rank":30,"rating":null,"sub":"Metroidvania","notes":"The genre-naming classic, still praised for its atmosphere and non-linear exploration."},{"title":"Brotato","rank":31,"rating":null,"sub":"Roguelite / Survivor-like","notes":"Frantic top-down survivors-like starring a potato with guns, built for build experimentation."},{"title":"Balatro","rank":32,"rating":null,"sub":"Roguelite Deckbuilder","notes":"Poker-hand-based roguelike deckbuilder that turns scoring combos into an addictive loop."},{"title":"Firewatch","rank":33,"rating":null,"sub":"Narrative Walking Sim","notes":"Dialogue-driven mystery in a Wyoming fire lookout, a genre-defining walking sim."},{"title":"Omno","rank":34,"rating":null,"sub":"Exploration Platformer","notes":"Serene traversal game about a pilgrim and their creature companion crossing a mysterious land."},{"title":"Exo One","rank":35,"rating":null,"sub":"Physics Exploration","notes":"Momentum-based flight and rolling exploration across alien landscapes."},{"title":"Doom (2016) / Doom Eternal","rank":36,"rating":null,"sub":"Boomer Shooter / FPS","notes":"The reboot and its sequel: relentless, mobility-heavy shooters built on glory kills."},{"title":"OneShot","rank":37,"rating":null,"sub":"Puzzle / Narrative Adventure","notes":"Meta puzzle-adventure about carrying a lightbulb-headed child to restore the sun."},{"title":"The Getaway","rank":38,"rating":null,"sub":"Action / Crime","notes":"Early-2000s London crime game blending driving and third-person shooting."},{"title":"Sifu","rank":39,"rating":null,"sub":"Martial Arts Action","notes":"Brutal kung-fu brawler where death ages your character instead of ending the run."},{"title":"To the Moon","rank":40,"rating":null,"sub":"Narrative Adventure","notes":"Short story game about reconstructing a dying man's memories."},{"title":"Limbo / Inside","rank":41,"rating":null,"sub":"Puzzle Platformer","notes":"Playdead's two moody, muted puzzle-platformers built on unsettling atmosphere and physics."},{"title":"Yoku's Island Express","rank":42,"rating":null,"sub":"Pinball Metroidvania","notes":"A metroidvania played entirely through pinball mechanics, somehow working brilliantly."},{"title":"Animal Well","rank":43,"rating":null,"sub":"Metroidvania","notes":"Cryptic, atmospheric metroidvania obsessed with secrets layered inside secrets."},{"title":"TUNIC","rank":44,"rating":null,"sub":"Action-Adventure / Puzzle","notes":"Zelda-inspired adventure starring a small fox, hiding an elaborate in-game manual full of ciphers."},{"title":"Hylics","rank":45,"rating":null,"sub":"Surreal RPG","notes":"Claymation-styled turn-based RPG with a deeply strange, hand-crafted world."},{"title":"Dusk","rank":46,"rating":null,"sub":"Boomer Shooter / FPS","notes":"Retro-styled FPS throwback built on Quake-era speed and grime."},{"title":"Fe","rank":47,"rating":null,"sub":"Action-Adventure","notes":"Wordless Nordic-forest adventure about communicating with creatures through song."},{"title":"Valheim","rank":48,"rating":null,"sub":"Survival / Building","notes":"Viking-afterlife survival game built on exploration, base-building, and brutal boss fights."},{"title":"Minecraft","rank":49,"rating":null,"sub":"Sandbox / Survival","notes":"The open-ended building and survival sandbox that needs no introduction."},{"title":"Bioshock","rank":null,"rating":null,"sub":"Immersive Sim / FPS","notes":"Underwater dystopia shooter wrapped around a philosophical story and a famous twist."},{"title":"Earthbound","rank":null,"rating":null,"sub":"JRPG","notes":"Quirky modern-day SNES RPG beloved for its humor and willingness to break convention."},{"title":"Inmost","rank":null,"rating":null,"sub":"Puzzle Platformer / Narrative","notes":"Dark, atmospheric puzzle-platformer weaving three interconnected stories."},{"title":"BOKURA","rank":null,"rating":null,"sub":"Narrative Puzzle","notes":"Short, melancholic narrative puzzle game about two kids and a lighthouse."},{"title":"Voyage","rank":null,"rating":null,"sub":"Co-op Puzzle Adventure","notes":"Gentle co-op desert adventure built around shared puzzle-solving."},{"title":"Max Payne 2","rank":null,"rating":null,"sub":"Action / Noir","notes":"Bullet-time noir shooter with a moody, hardboiled story."},{"title":"Vampire Survivors","rank":null,"rating":null,"sub":"Roguelite / Survivor-like","notes":"The game that defined the bullet-heaven genre, minimalist and endlessly replayable."},{"title":"Slay the Spire","rank":null,"rating":null,"sub":"Roguelite Deckbuilder","notes":"The deckbuilder that launched a genre, combining card strategy with roguelike runs."},{"title":"Cobalt Core","rank":null,"rating":null,"sub":"Roguelite Deckbuilder","notes":"A spaceship-combat deckbuilder with tactical positioning layered on top of cards."},{"title":"Risk of Rain 2","rank":null,"rating":null,"sub":"Roguelite / Survivor-like","notes":"3D roguelite shooter with escalating chaos and a killer synth soundtrack."},{"title":"Megabonk","rank":null,"rating":null,"sub":"Roguelite / Survivor-like","notes":"Fast, build-focused entry in the bullet-heaven wave."},{"title":"Tom Clancy's Splinter Cell","rank":null,"rating":null,"sub":"Stealth Action","notes":"The original stealth-espionage classic that helped define shadow-based stealth on Xbox."},{"title":"Kena: Bridge of Spirits","rank":null,"rating":null,"sub":"Action-Adventure","notes":"Pixar-styled spirit-guide adventure blending combat and adorable companion creatures."},{"title":"Arise: A Simple Story","rank":null,"rating":null,"sub":"Puzzle Platformer","notes":"Gentle, time-manipulating platformer following a life looking back on its memories."},{"title":"Undertale","rank":null,"rating":null,"sub":"RPG / Narrative","notes":"Subversive RPG about choosing whether to fight or befriend every enemy."},{"title":"Psychonauts","rank":null,"rating":null,"sub":"Platformer","notes":"Cult-favorite platformer diving literally into characters' minds, packed with imagination."},{"title":"Hogwarts Legacy","rank":null,"rating":null,"sub":"Open-World Action RPG","notes":"Open-world Wizarding World game letting you attend Hogwarts and explore the wider magical world."},{"title":"Cuphead","rank":null,"rating":null,"sub":"Run and Gun","notes":"Gorgeous hand-drawn boss-rush shooter with brutal, old-cartoon-styled difficulty."}]},"albums":{"title":"JAKE'S ALBUMS","sub":"a personal top 50, ranked and reserved","cover":"square","maxRank":50,"items":[{"title":"Over Skies","rank":1,"rating":null,"sub":"Quickly, Quickly","notes":null},{"title":"Multi-Love","rank":2,"rating":null,"sub":"Unknown Mortal Orchestra","notes":null},{"title":"Dreamcore Vol. 1","rank":3,"rating":null,"sub":"Dreamstation","notes":null},{"title":"Free 6LACK","rank":4,"rating":null,"sub":"6LACK","notes":null},{"title":"Fin","rank":5,"rating":null,"sub":"Syd","notes":null},{"title":"Rumours","rank":6,"rating":null,"sub":"Fleetwood Mac","notes":null},{"title":"Rainforest Magic","rank":7,"rating":null,"sub":"Tony O'Connor","notes":null},{"title":"I Like It When You Sleep...","rank":8,"rating":null,"sub":"The 1975","notes":null},{"title":"Plural","rank":9,"rating":null,"sub":"Electric Guest","notes":null},{"title":"Wolf","rank":10,"rating":null,"sub":"Tyler, The Creator","notes":null},{"title":"Manj","rank":11,"rating":null,"sub":"Joomanji","notes":null},{"title":"Introspection","rank":12,"rating":null,"sub":"VALENTINE","notes":null},{"title":"Channel Orange","rank":13,"rating":null,"sub":"Frank Ocean","notes":null},{"title":"Born to Do It","rank":14,"rating":null,"sub":"Craig David","notes":null},{"title":"Nostalgia, Ultra","rank":15,"rating":null,"sub":"Frank Ocean","notes":null},{"title":"For All We Know","rank":16,"rating":null,"sub":"Nao","notes":null},{"title":"2070","rank":17,"rating":null,"sub":"glue70","notes":null},{"title":"Blonde","rank":18,"rating":null,"sub":"Frank Ocean","notes":null},{"title":"Art","rank":19,"rating":null,"sub":"Benny Sings","notes":null},{"title":"Period","rank":20,"rating":null,"sub":"Infinite Bisous","notes":null},{"title":"Can't Take Me Home","rank":21,"rating":null,"sub":"P!nk","notes":null},{"title":"Flower Boy","rank":22,"rating":null,"sub":"Tyler, The Creator","notes":null},{"title":"hypochondriac","rank":23,"rating":null,"sub":"brakence","notes":null},{"title":"GOLDWATER EP","rank":24,"rating":null,"sub":"Goldwater","notes":null},{"title":"Dynasty (EP)","rank":25,"rating":null,"sub":"Koan Sound","notes":null},{"title":"Producer 05","rank":26,"rating":7,"sub":"LTJ Bukem","notes":null}]},"soundtracks":{"title":"JAKE'S GAME MUSIC","sub":"a personal top 50, ranked and reserved","cover":"square","maxRank":50,"items":[{"title":"Chrono Trigger","rank":1,"rating":null,"sub":null,"notes":null},{"title":"Death's Door","rank":2,"rating":null,"sub":null,"notes":null},{"title":"Hollow Knight","rank":3,"rating":null,"sub":null,"notes":null},{"title":"Silksong","rank":4,"rating":null,"sub":null,"notes":null},{"title":"Skyrim","rank":5,"rating":null,"sub":null,"notes":null},{"title":"Ori and the Blind Forest","rank":6,"rating":null,"sub":null,"notes":null},{"title":"Stardew Valley","rank":7,"rating":null,"sub":null,"notes":null},{"title":"Minecraft","rank":8,"rating":null,"sub":"C418","notes":null},{"title":"Risk of Rain 2","rank":9,"rating":null,"sub":null,"notes":null},{"title":"Outer Wilds","rank":10,"rating":null,"sub":null,"notes":null},{"title":"Celeste","rank":11,"rating":null,"sub":null,"notes":null},{"title":"Hyper Light Drifter","rank":12,"rating":null,"sub":null,"notes":null},{"title":"The Legend of Zelda: Breath of the Wild","rank":13,"rating":null,"sub":null,"notes":null}]},"finished":{"title":"JAKE'S FINISHED GAMES","sub":"every game beaten, rated and noted","cover":"portrait","maxRank":50,"kind":"finished","items":[{"title":"20 Minutes Till Dawn","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"AER Memories of Old","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"After Death","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Arise: A Simple Story","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Astral Ascent","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Axiom Verge","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"BADLAND: GOTY Edition","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Balatro","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Bastion","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Black Mesa","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Blasphemous","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Blasphemous 2","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Bloons TD 6","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Blue Fire","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"BOKURA","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Borderlands GOTY","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Broforce","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"The Cabin Factory","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Celeste","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Children of Morta","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"CHRONO TRIGGER","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Cobalt Core","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Crash Bandicoot N. Sane Trilogy","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"CrossCode","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Cuphead","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Darkest Dungeon","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Dead Cells","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Dead Space 2","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Death Must Die","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Death's Door","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"DEVIATOR","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Distance","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Don't Starve Together","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"DOOM","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"DOOM Eternal","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"DUSK","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Eastshade","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Environmental Station Alpha","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Eternal Hope","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Etherborn","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Europa","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Exo One","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Fallout 4","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Fe","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Firewatch","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Flower","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Furi","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Getting Over It","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"GRIS","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Guacamelee! 2","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Gunfire Reborn","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Haiku the Robot","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"A Hat in Time","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Hellbound","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Hoa","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Hob","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Hollow Knight","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Hollow Knight: Silksong","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Hylics","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Hyper Light Drifter","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"INMOST","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"INSIDE","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Journey","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Life is Strange","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"LIMBO","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Little Misfortune","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Little Nightmares","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Little Nightmares II","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Mandagon","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Megabonk","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"The Messenger","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Metro 2033 Redux","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Minami Lane","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Nine Sols","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Noita","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Omno","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Ori and the Blind Forest","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Ori: Definitive Edition","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Ori and the Will of the Wisps","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Outer Wilds","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Outlast","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Outlast 2","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Overcooked","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Overcooked! 2","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Owl Watch","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Pathway","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Project Warlock","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Pseudoregalia","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Psychonauts","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Pumpkin Jack","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Rabi-Ribi","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Rayman Legends","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Refunct","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"RiME","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Risen","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Risk of Rain 2","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Sable","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Scarlet Maiden","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Seasons after Fall","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Shift Happens","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"THE SHORE","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"A Short Hike","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Sifu","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Slay the Spire","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"The Sojourn","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Sphinx and the Cursed Mummy","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"STAR WARS Jedi: Fallen Order","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"A Story About My Uncle","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Summer Catchers","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Sundered","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Super Bunny Man","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Super Meat Boy","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Superflight","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Supraland","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"To the Moon","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Undertale","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"The Unfinished Swan","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"UNSIGHTED","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Vampire Survivors","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Voyage","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"We Were Here","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"We Were Here Forever","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"We Were Here Together","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"We Were Here Too","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"The Wild Eternal","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"The Witcher 3","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Wizard of Legend","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Yooka-Laylee","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"Zuma's Revenge","rank":null,"rating":null,"sub":"Steam","notes":null},{"title":"STAR WARS: Knights of the Old Republic","rank":null,"rating":null,"sub":"Switch","notes":null},{"title":"Brotato","rank":null,"rating":null,"sub":"Switch","notes":null},{"title":"Bō: Path of the Teal Lotus","rank":null,"rating":null,"sub":"Switch","notes":null},{"title":"The Knight Witch","rank":null,"rating":null,"sub":"Switch","notes":null},{"title":"Katana Zero","rank":null,"rating":null,"sub":"Switch","notes":null},{"title":"Alba: A Wildlife Adventure","rank":null,"rating":null,"sub":"Switch","notes":null},{"title":"Call of Juarez: Gunslinger","rank":null,"rating":null,"sub":"Switch","notes":null},{"title":"Yoku's Island Express","rank":null,"rating":null,"sub":"Switch","notes":null},{"title":"The Artful Escape","rank":null,"rating":null,"sub":"Switch","notes":null},{"title":"Super Metroid","rank":null,"rating":null,"sub":"Switch","notes":null},{"title":"The Legend of Zelda: Breath of the Wild","rank":null,"rating":null,"sub":"Switch","notes":null},{"title":"Donkey Kong","rank":null,"rating":null,"sub":"SNES Mini","notes":null},{"title":"Kena: Bridge of Spirits","rank":null,"rating":null,"sub":"Epic Games","notes":null},{"title":"The Elder Scrolls V: Skyrim","rank":null,"rating":null,"sub":"Xbox","notes":null},{"title":"Fable","rank":null,"rating":null,"sub":"Xbox","notes":null},{"title":"TUNIC","rank":null,"rating":null,"sub":"Xbox","notes":null},{"title":"OneShot","rank":null,"rating":null,"sub":"Xbox","notes":null},{"title":"The Getaway","rank":null,"rating":null,"sub":"Xbox","notes":null},{"title":"Hogwarts Legacy","rank":null,"rating":null,"sub":"Xbox","notes":null},{"title":"Tom Clancy's Splinter Cell","rank":null,"rating":null,"sub":"Xbox","notes":null},{"title":"Animal Well","rank":null,"rating":null,"sub":"Xbox","notes":null}]}};
+  var TAB_ORDER = ['games','albums','soundtracks','finished'];
+  var TAB_LABELS = {games:'Games',albums:'Albums',soundtracks:'Soundtracks',finished:'Finished'};
   var ICON_PHOTO = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"></rect><circle cx="8.5" cy="9.5" r="1.4"></circle><path d="M21 15l-5-5-4 4-3-3-6 6" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
   var activeKey = 'games';
 
@@ -276,6 +162,8 @@ footer a{color:var(--accent)}
     countRanked: document.getElementById('countRanked'),
     countReserve: document.getElementById('countReserve'),
     rankedMeta: document.getElementById('rankedMeta'),
+    lblRanked: document.getElementById('lblRanked'),
+    lblReserve: document.getElementById('lblReserve'),
     brandTitle: document.getElementById('brandTitle'),
     brandSub: document.getElementById('brandSub'),
   };
@@ -289,6 +177,42 @@ footer a{color:var(--accent)}
     els.tabs.querySelectorAll('.tab').forEach(function(btn){
       btn.addEventListener('click', function(){ activeKey = btn.getAttribute('data-key'); renderTabs(); renderActive(); });
     });
+  }
+
+  function normTitle(s){ return String(s||'').toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,''); }
+  function topMap(){ var m={}; DATA.games.items.forEach(function(g){ if(g.rank!=null) m[normTitle(g.title)]=g.rank; }); return m; }
+
+  function finishedCardHTML(g, tops){
+    var coverInner = '<div class="cover-empty">'+ICON_PHOTO+'<span>NO COVER ART YET</span></div>';
+    var tr = tops[normTitle(g.title)];
+    var topTag = tr!=null ? '<div class="rank">TOP 50 #'+esc(tr)+'</div>' : '';
+    var has = g.rating!=null;
+    var ratingTag = has ? '<div class="rating">'+esc(g.rating)+'/10</div>' : '<div class="rating unrated">Unrated</div>';
+    return '<div class="card"><div class="cover-wrap portrait">'+coverInner+topTag+ratingTag+'</div><h3>'+esc(g.title)+'</h3>'+
+      (g.sub?'<div class="sub">'+esc(g.sub)+'</div>':'')+(g.notes?'<p class="note">'+esc(g.notes)+'</p>':'')+'</div>';
+  }
+
+  function renderFinished(conf){
+    var tops = topMap(), items = conf.items;
+    var q = document.getElementById('f-search').value.trim().toLowerCase();
+    var sort = document.getElementById('f-sort').value;
+    var un = document.getElementById('f-unrated').checked;
+    var inTop = items.filter(function(g){ return tops[normTitle(g.title)]!=null; }).length;
+    var rated = items.filter(function(g){ return g.rating!=null; }).length;
+    els.countRanked.textContent = items.length; els.countReserve.textContent = inTop;
+    els.rankedMeta.textContent = rated+' rated · '+(items.length-rated)+' still to rate';
+    var list = items.filter(function(g){
+      if(un && g.rating!=null) return false;
+      return !q || g.title.toLowerCase().indexOf(q)!==-1 || (g.sub||'').toLowerCase().indexOf(q)!==-1 || (g.notes||'').toLowerCase().indexOf(q)!==-1;
+    });
+    list.sort(function(a,b){
+      if(sort==='az') return a.title.localeCompare(b.title);
+      var ra=a.rating==null?-1:a.rating, rb=b.rating==null?-1:b.rating;
+      return (rb-ra)||a.title.localeCompare(b.title);
+    });
+    els.rankedGrid.className = 'grid';
+    els.rankedGrid.innerHTML = list.length ? list.map(function(g){ return finishedCardHTML(g,tops); }).join('')
+      : '<div class="empty-state" style="grid-column:1/-1"><b>No matches</b></div>';
   }
 
   function cardHTML(g, rankView, coverClass){
@@ -309,6 +233,13 @@ footer a{color:var(--accent)}
     var coverClass = conf.cover === 'square' ? 'square' : 'portrait';
     els.brandTitle.textContent = conf.title;
     els.brandSub.textContent = conf.sub;
+    var fin = conf.kind === 'finished';
+    document.getElementById('reserveSection').hidden = fin;
+    document.getElementById('toolbar').hidden = !fin;
+    document.getElementById('rankedTitle').textContent = fin ? 'Finished games' : 'Top list';
+    els.lblRanked.textContent = fin ? 'finished' : 'ranked';
+    els.lblReserve.textContent = fin ? 'in your top 50' : 'reserve';
+    if(fin){ renderFinished(conf); return; }
 
     var ranked = conf.items.filter(function(g){ return g.rank != null; }).sort(function(a,b){ return a.rank-b.rank; });
     var reserve = conf.items.filter(function(g){ return g.rank == null; });
@@ -328,6 +259,9 @@ footer a{color:var(--accent)}
       : '<div class="empty-state" style="grid-column:1/-1">Nothing in reserve yet.</div>';
   }
 
+  ['f-search','f-sort','f-unrated'].forEach(function(id){
+    document.getElementById(id).addEventListener(id==='f-search'?'input':'change', function(){ if(activeKey==='finished') renderActive(); });
+  });
   renderTabs();
   renderActive();
 })();

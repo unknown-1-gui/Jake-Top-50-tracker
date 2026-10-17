@@ -1,6 +1,6 @@
 # Jake's Top Lists
 
-A static, read-only mirror of three personal top-50 rankings — Games, Albums, and Game Soundtracks.
+A static, read-only mirror of personal rankings — Games, Albums and Game Soundtracks top 50s, plus a Finished-games log with ratings and notes.
 
 This is a **snapshot**, not a live app. The real, editable version (where entries get added, moved between the top list and reserve, and get cover art) lives at:
 
