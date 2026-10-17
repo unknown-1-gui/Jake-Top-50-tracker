@@ -1,13 +1,7 @@
 # Jake's Top Lists
 
-A static, read-only mirror of personal rankings — Games, Albums and Game Soundtracks top 50s, plus a Finished-games log with ratings and notes.
+A read-only site of personal rankings: Games, Albums and Game Soundtracks top 50s, plus a log of every game finished with ratings and notes.
 
-This is a **snapshot**, not a live app. The real, editable version (where entries get added, moved between the top list and reserve, and get cover art) lives at:
+Live site: https://unknown-1-gui.github.io/Jake-Top-50-tracker/
 
-https://claude.ai/artifact/UqiuZDVgEqdJP7SSyEtGS4
-
-To refresh this snapshot after making changes on the live list, re-export and re-publish `index.html`.
-
-## Why static?
-
-GitHub Pages only serves plain files — it can't run the live database, file uploads, or edit features that the Claude-hosted version uses. This copy exists for backup/display purposes only.
+It is a static snapshot, so it only changes when the data is re-exported and `index.html` plus `img/` are pushed again.
