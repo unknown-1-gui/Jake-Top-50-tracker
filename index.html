@@ -216,6 +216,11 @@ footer a{color:var(--accent)}
   }
 
   function cardHTML(g, rankView, coverClass){
+    if(activeKey==='games'){
+      var fm={}; DATA.finished.items.forEach(function(f){ if(f.rating!=null) fm[normTitle(f.title)]=f.rating; });
+      var fr=fm[normTitle(g.title)];
+      if(fr!==undefined) g=Object.assign({},g,{rating:fr});
+    }
     var coverInner = '<div class="cover-empty">'+ICON_PHOTO+'<span>NO COVER ART YET</span></div>';
     var topTag = rankView ? '<div class="rank">#'+esc(g.rank)+'</div>' : '<div class="reserve-tag">RESERVE</div>';
     var ratingTag = (g.rating !== null && g.rating !== undefined) ? '<div class="rating">'+esc(g.rating)+'/10</div>' : '';
